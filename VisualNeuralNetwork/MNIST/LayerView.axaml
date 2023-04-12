@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vnn="clr-namespace:VisualNeuralNetwork"
+			 xmlns:local="clr-namespace:VisualNeuralNetwork.MNIST"
+             x:Class="VisualNeuralNetwork.MNIST.LayerView">
+	<UserControl.Resources>
+		<local:DataContextConverter x:Key="datacontextConverter"/>
+	</UserControl.Resources>
+	<StackPanel>
+		<StackPanel Orientation="Horizontal" >
+
+			<StackPanel Orientation="Vertical">
+				<TextBlock Margin="10,2" Text="{Binding InputSize,StringFormat='Inputs {0}'}"/>
+				<TextBlock Margin="10,2" Text="{Binding OutputSize,StringFormat='Neurons {0}'}"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Vertical">
+				<TextBlock Margin="10">Bias</TextBlock>
+				<vnn:XYPlot x:Name="biasPlot" Margin="10,0" Width="200" Height="200"
+                                 DataContext="{Binding Biases, Converter={StaticResource datacontextConverter}}" 
+                                 />
+			</StackPanel>
+			<StackPanel Orientation="Vertical">
+				<TextBlock Margin="10,2" Text="{Binding CurrentDataPoint.X,ElementName=biasPlot,StringFormat='Neuron {0}'}"/>
+				<TextBlock Margin="10,2" Text="{Binding CurrentDataPoint.Y,ElementName=biasPlot,StringFormat='Bias {0}'}"/>
+			</StackPanel>
+		</StackPanel>
+		<TextBlock Margin="10,0">Weights</TextBlock>
+		<ItemsControl x:Name="weighs_ItemsControl" ItemsSource="{Binding Weights, Converter={StaticResource datacontextConverter}}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<vnn:XYPlot x:Name="weightPlot" Margin="3" Width="100" Height="100"
+                                Initialized="weightPlot_Loaded"
+                                /> 
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+		<TextBlock x:Name="weight_TextBlock" Margin="10"/>
+	</StackPanel>
+</UserControl>

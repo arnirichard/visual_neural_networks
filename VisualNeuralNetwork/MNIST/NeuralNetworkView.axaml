@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="clr-namespace:VisualNeuralNetwork.MNIST"
+			 xmlns:vnn="clr-namespace:VisualNeuralNetwork"
+             x:Class="VisualNeuralNetwork.MNIST.NeuralNetworkView">
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="250"/>
+			<ColumnDefinition Width="2"/>
+			<ColumnDefinition Width="250"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<local:NetworkNodeView DataContext="{Binding Network1}" Grid.Column="1"/>
+
+		<Grid Width="2" Background="Black" VerticalAlignment="Stretch" Grid.Column="2"/>
+
+		<local:NetworkNodeView DataContext="{Binding Network2}" Grid.Column="3"/>
+
+		<StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="20, 0" HorizontalAlignment="Center"
+			Grid.ColumnSpan="5">
+			<Button Click="NextEpoch_Click" Padding="20,0">
+				Next Epoch
+			</Button>
+
+			<Button Click="Restart_Click" Padding="20,0">
+				Restart
+			</Button>
+
+			<TextBlock Text="{Binding Value, ElementName=batchSizeSlider, StringFormat='Batch size {0}'}" VerticalAlignment="Center"/>
+
+			<Slider x:Name="batchSizeSlider" Value="{Binding BatchSize, Mode=TwoWay}" Maximum="1000" Minimum="1" Width="200"/>
+		</StackPanel>
+
+		<ScrollViewer>
+			<ItemsControl ItemsSource="{Binding Network1.Network.Layers}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Vertical"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<local:LayerView/>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<ScrollViewer Grid.Column="4">
+			<ItemsControl ItemsSource="{Binding Network2.Network.Layers}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Vertical"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<local:LayerView/>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<Grid Background="White" Grid.ColumnSpan="10" Grid.RowSpan="10" IsVisible="{Binding IsLoading}">
+			<TextBlock Text="Loading..." FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Grid>
+	</Grid>
+</UserControl>

@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="clr-namespace:VisualNeuralNetwork"
+             x:Class="VisualNeuralNetwork.MNIST.NetworkNodeView">
+	<StackPanel Orientation="Vertical">
+
+		<TextBlock Text="{Binding Value, ElementName=classSlider, StringFormat='Current class {0}'}" />
+
+		<Slider x:Name="classSlider" Value="{Binding ClassNumber, Mode=TwoWay}" Maximum="9" Minimum="0" />
+
+		<TextBlock Text="{Binding SelectedImageClass.NumberOfSamples, StringFormat='Class samples {0}'}"/>
+
+		<TextBlock Text="{Binding Value, ElementName=sampleSlider, StringFormat='Current sample {0}'}"/>
+
+		<Slider x:Name="sampleSlider" Value="{Binding ImageNumber, Mode=TwoWay}" Maximum="{Binding SelectedImageClass.NumberOfSamples}" Minimum="1"/>
+
+		<TextBlock Text="{Binding CurrentImageClassification}" MaxWidth="200"/>
+
+		<local:GridPlot Margin="10" Width="150" Height="150"
+                                Channel="Blue" GrayScale="True"
+                                DataContext="{Binding CurrentImage}" NumColumns="28"/>
+
+		<CheckBox IsChecked="{Binding IncludeImageInTraining,Mode=TwoWay}" VerticalContentAlignment="Center">Include in training</CheckBox>
+
+		<Button Click="findFailed_Click">Find failed</Button>
+
+		<TextBlock Text="Image processing"/>
+
+		<ComboBox ItemsSource="{Binding ImageProcessingOptions}"
+                  SelectedItem="{Binding ImageProcessing, Mode=TwoWay}" Margin="10" Padding="0"/>
+
+		<TextBlock Text="{Binding Value, ElementName=etaSlider, StringFormat='Learning rate {0:0.##}'}" />
+
+		<Slider x:Name="etaSlider" Value="{Binding LearningRate, Mode=TwoWay}" Maximum="3" Minimum="0.01" SmallChange="0.1"
+                    IsSnapToTickEnabled="True"
+                    TickFrequency="0.1"/>
+
+		<TextBlock Text="Loss function"/>
+
+		<ComboBox ItemsSource="{Binding LossFunctionOptions}"
+                  SelectedItem="{Binding LossFunction, Mode=TwoWay}" Margin="10" Padding="0"/>
+
+		<TextBlock Text="{Binding Network.Epochs, StringFormat='Epochs {0}'}" />
+
+		<TextBlock Text="{Binding PerformancePerc, StringFormat='Test performance {0:0.##}%'}" />
+
+		<ItemsControl ItemsSource="{Binding Classes}" HorizontalAlignment="Center">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Vertical" Margin="5">
+						<TextBlock Text="{Binding Class, StringFormat='Digit {0}'}" FontSize="20" />
+						<TextBlock Text="{Binding Performance.SuccessRatePerc, StringFormat=' {0:0.##}%'}" FontSize="18"/>
+					</StackPanel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</StackPanel>
+</UserControl>

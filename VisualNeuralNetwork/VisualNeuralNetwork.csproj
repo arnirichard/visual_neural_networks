@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+    <TrimMode>copyused</TrimMode>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Assets\MNIST\0.dat" />
+    <AvaloniaResource Remove="Assets\MNIST\4.dat" />
+    <None Remove=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\MNIST\0.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+	<Content Include="Assets\MNIST\1.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\2.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\3.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\4.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\5.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\6.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\7.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\8.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Assets\MNIST\9.dat">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="Avalonia" Version="11.0.0-preview6" />
+	<PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview6" />
+	<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+	<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview6" />
+	<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview6" />
+	<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Plot\XYPlot.axaml.cs">
+      <DependentUpon>XYPlot.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>
