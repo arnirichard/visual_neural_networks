@@ -112,7 +112,7 @@ namespace VisualNeuralNetwork
 
             byte[] bytes = range == 0
                 ? new byte[values.Count]
-                : values.Select(d => (byte)(d / range * 255)).ToArray();
+                : values.Select(d => (byte)((d-min) / range * 255)).ToArray();
                  
             WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height);
 
