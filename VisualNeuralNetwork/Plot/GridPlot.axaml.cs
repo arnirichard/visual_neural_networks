@@ -111,7 +111,6 @@ namespace VisualNeuralNetwork
                 int posX, posY;
                 double x = 0, y = -rowHeight;
 
-
                 for (int i = 0; i < values.Count; i++)
                 {
                     if (i % NumColumns == 0)

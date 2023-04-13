@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Data.Converters;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,7 @@ namespace VisualNeuralNetwork.MNIST
                 {
                     float[] y = arr.Data.Select(f => (float)f).ToArray();
                     return new XyPlotModel(
-                        y,
-                        x: Enumerable.Range(1, y.Length + 1).Select(b => (float)b).ToArray()
+                        y
                     );
                 }
 
@@ -33,8 +33,7 @@ namespace VisualNeuralNetwork.MNIST
                         y[j] = (float)arr.Data[index++];
                     }
                     result.Add(new XyPlotModel(
-                        y,    
-                        x: Enumerable.Range(1, y.Length + 1).Select(b => (float)b).ToArray()
+                        y
                     ));
                 }
 
@@ -55,6 +54,9 @@ namespace VisualNeuralNetwork.MNIST
         public LayerView()
         {
             InitializeComponent();
+            biasPlot.HorizontalLines.Add(new LinesDefinition(0, 1, true, (uint)XYPlot.Grey));
+            biasPlot.HorizontalLines.Add(new LinesDefinition(0, 0.1f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
+            biasPlot.HorizontalLines.Add(new LinesDefinition(0, 0.01f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
         }
 
         private void weightPlot_Loaded(object sender, System.EventArgs e)
@@ -63,11 +65,38 @@ namespace VisualNeuralNetwork.MNIST
             {
                 if (plot.HorizontalLines.Count == 0)
                 {
-                    plot.HorizontalLines.Add(new LinesDefinition(0, 1, true, XYPlot.Black));
+                    plot.HorizontalLines.Add(new LinesDefinition(0, 1, true, (uint)XYPlot.Grey));
+                    plot.HorizontalLines.Add(new LinesDefinition(0, 0.1f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
+                    plot.HorizontalLines.Add(new LinesDefinition(0, 0.01f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
 
-                    //var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
+                    plot.PropertyChanged += Plot_PropertyChanged;
+                }
+            }
+        }
 
-                    //pd.AddValueChanged(plot, OnCurrentValueChanged);
+        private void Plot_PropertyChanged(object? sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == XYPlot.CurrentDataPointProperty && sender is XYPlot xyPlot && xyPlot.CurrentDataPoint != null &&
+                weighs_ItemsControl?.ItemsSource != null)
+            {
+                int index = -1;
+
+                foreach (var item in weighs_ItemsControl.ItemsSource)
+                {
+                    index++;
+
+                    if (item  == xyPlot.DataContext)
+                    {
+                        break;
+                    }
+                }
+
+                if (sender is XYPlot plot && plot.CurrentDataPoint != null)
+                {
+                    weight_TextBlock.Text = string.Format("Neuron {0}, Input {1}, Weight {2}",
+                        index + 1,
+                        plot.CurrentDataPoint.Number,
+                        plot.CurrentDataPoint.Y);
                 }
             }
         }

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
@@ -17,9 +18,9 @@ namespace VisualNeuralNetwork
         public float Value { get; private set; }
         public float Interval { get; private set; }
         public bool Solid { get; private set; }
-        public int Color { get; private set; }
+        public uint Color { get; private set; }
         public int MinPointsSpacing { get; private set; }
-        public LinesDefinition(float value, float interval, bool solid, int color, int minPointSpacing = 10)
+        public LinesDefinition(float value, float interval, bool solid, uint color, int minPointSpacing = 10)
         {
             Value = value;
             Interval = interval;
@@ -31,13 +32,14 @@ namespace VisualNeuralNetwork
 
     public class DataPoint
     {
-        public float X { get; }
         public float Y { get; }
+        public float? X { get; }
         public int Index { get; }
-        public DataPoint(float x, float y, int index)
+        public int Number => Index + 1;
+        public DataPoint(float y, float? x, int index)
         {
-            X = x;
             Y = y;
+            X = x;
             Index = index;
         }
     }
@@ -48,10 +50,10 @@ namespace VisualNeuralNetwork
         public static int Orange = int.Parse("FFFF6A00", System.Globalization.NumberStyles.HexNumber);
         public static int Black = int.Parse("FF000000", System.Globalization.NumberStyles.HexNumber);
         public static int White = int.Parse("FFFFFFFF", System.Globalization.NumberStyles.HexNumber);
-        public static int Beige = int.Parse("FFDDDDDD", System.Globalization.NumberStyles.HexNumber);
+        public static int Beige = int.Parse("FFAAAAAA", System.Globalization.NumberStyles.HexNumber);
+        public static int Grey = int.Parse("FF666666", System.Globalization.NumberStyles.HexNumber);
         public static int Blue = int.Parse("FF0000FF", System.Globalization.NumberStyles.HexNumber);
 
-        public readonly List<LinesDefinition> VerticalLines = new();
         public readonly List<LinesDefinition> HorizontalLines = new();
 
         public static readonly StyledProperty<DataPoint?> CurrentDataPointProperty =
@@ -75,7 +77,22 @@ namespace VisualNeuralNetwork
                 }
             });
 
+            grid.PointerMoved += Grid_PointerMoved;
+
             DataContextChanged += GridPlot_DataContextChanged;
+        }
+
+        private void Grid_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
+        {
+            Point p = e.GetPosition(this);   
+
+            if(p.X > -1 && p.X < Bounds.Width && DataContext is XyPlotModel m)
+            {
+                int index = (int)(p.X / Bounds.Width * m.Y.Length);
+                CurrentDataPoint = index > -1 && index < m.Y.Length
+                    ? new DataPoint(m.Y[index], m.X?[index], index)
+                    : null;
+            }
         }
 
         private void GridPlot_DataContextChanged(object? sender, EventArgs e)
@@ -93,6 +110,8 @@ namespace VisualNeuralNetwork
 
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
+            //if (data.Y.Length > width)
+            //    width = (int)Math.Min(MaxWidth, data.Y.Length);
 
             WriteableBitmap? wbm = CreateBitmap(data, width, height);
 
@@ -102,7 +121,7 @@ namespace VisualNeuralNetwork
             }
         }
 
-        WriteableBitmap? CreateBitmap(XyPlotModel data, int width, int height)
+        unsafe WriteableBitmap? CreateBitmap(XyPlotModel data, int width, int height)
         {
             try
             {
@@ -112,10 +131,61 @@ namespace VisualNeuralNetwork
                     Avalonia.Platform.PixelFormat.Bgra8888,
                     Avalonia.Platform.AlphaFormat.Unpremul);
 
+                float yMin = data.Y.Min() * 1.1f;
+                float yMax = data.Y.Max() * 1.1f;
+                float yRange = yMax - yMin;
+                uint color = (uint)Black;
+
+                HashSet<int> points = new();
+
                 // draw lines
+                foreach (var line in HorizontalLines)
+                    writeableBitmap.PaintHorizontalLines(line, yMin, yMax, points);
 
                 // draw plot
-                    
+                using (var buf = writeableBitmap.Lock())
+                {
+                    var ptr = (uint*)buf.Address;
+
+                    int y, lasty=-1;
+                    int sign;
+                    float dpx = buf.Size.Width / (float)data.Y.Length;
+                    int ipx = 0;
+                    int toIpx;
+
+                    for (int x = 0; x < data.Y.Length; x++)
+                    {
+                        y = (int)((1-(data.Y[x]-yMin)/yRange)*buf.Size.Height);
+
+                        if (x == 0)
+                        {
+                            lasty = y;
+                            ptr += y * buf.Size.Width;
+                            if(y > -1 && y < buf.Size.Height)
+                                *ptr = color;
+                        }
+
+                        sign = Math.Sign(y - lasty);
+                        // plot vertical line from lasty to y
+                        while (lasty != y)
+                        {
+                            lasty += sign;
+                            ptr += buf.Size.Width * sign;
+                            if (lasty > -1 && lasty < buf.Size.Height)
+                                *ptr = color;
+                        }
+                        // plot horizontal line
+                        toIpx = Math.Min((int)((x+1) * dpx), buf.Size.Width);
+
+                        while (ipx < toIpx)
+                        {
+                            ptr += 1;
+                            ipx++;
+                            *ptr = color;
+                        }
+                    }
+                }
+
                 return writeableBitmap;
             }
             catch
