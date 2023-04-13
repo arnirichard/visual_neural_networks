@@ -20,6 +20,7 @@ namespace VisualNeuralNetwork.MNIST
     class NetworkNode : ViewModelBase
     {
         public const int ImageDimension = 28;
+        public const int NumberOfNeurons = 40;
         public const int ImageSize = ImageDimension * ImageDimension;
 
         public Network Network { get; private set; }
@@ -150,8 +151,8 @@ namespace VisualNeuralNetwork.MNIST
             return new Network(lossFunction,
                 new List<Layer>()
                 {
-                    new DenseLayer(ImageSize, 50, new Sigmoid()),
-                    new DenseLayer(50, 10, new Sigmoid()),
+                    new DenseLayer(ImageSize, NumberOfNeurons, new Sigmoid()),
+                    new DenseLayer(NumberOfNeurons, 10, new Sigmoid()),
                 });
         }
 

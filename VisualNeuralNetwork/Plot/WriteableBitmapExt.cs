@@ -45,11 +45,11 @@ namespace VisualNeuralNetwork
             }
         }
 
-        internal static void PaintHorizontalLines(this WriteableBitmap writeableBitmap,
+        internal static void PaintHorizontalLines(this ILockedFramebuffer buf,
             LinesDefinition linesDefinition, float minY, float maxY , HashSet<int> points)
         {
             float range = maxY - minY;
-            var spacing = writeableBitmap.Size.Height *
+            var spacing = buf.Size.Height *
                 (linesDefinition.Interval > 0 ? linesDefinition.Interval : range)
                 / range;
 
@@ -63,19 +63,19 @@ namespace VisualNeuralNetwork
                 }
                 int pos;
 
-                int lastPos = (int)writeableBitmap.Size.Height;
+                int lastPos = (int)buf.Size.Height;
 
                 while (val < maxY)
                 {
                     if (val > minY)
                     {
                         var ratio = (val - minY) / range;
-                        pos = (int)((1 - ratio) * writeableBitmap.Size.Height);
+                        pos = (int)((1 - ratio) * buf.Size.Height);
                         if (!points.Contains(pos) &&
                             Math.Abs(lastPos - pos) > linesDefinition.MinPointsSpacing &&
-                            writeableBitmap.PaintHorizontalLine(linesDefinition.Color,
+                            buf.PaintHorizontalLine(linesDefinition.Color,
                             pos,
-                            linesDefinition.Solid ? (int)writeableBitmap.Size.Width : 8,
+                            linesDefinition.Solid ? (int)buf.Size.Width : 8,
                             linesDefinition.Solid ? 0 : 6))
                         {
                             lastPos = pos;
@@ -88,47 +88,38 @@ namespace VisualNeuralNetwork
             }
         }
 
-        internal unsafe static bool PaintHorizontalLine(this WriteableBitmap writeableBitmap, uint color, int y,
+        internal unsafe static bool PaintHorizontalLine(this ILockedFramebuffer buf, uint color, int y,
             int solid = int.MaxValue, int gaps = 0)
         {
-            if (y < 0 || y >= writeableBitmap.Size.Height)
+            if (y < 0 || y >= buf.Size.Height)
                 return false;
 
-            try
+            var ptr = (uint*)buf.Address;
+            int width = buf.Size.Width;
+
+            ptr += y * buf.Size.Width;
+
+            int i = 0;
+            int iTo;
+
+            while (true)
             {
-                using (var buf = writeableBitmap.Lock())
+                iTo = Math.Min(i + solid, width);
+
+                for (; i < iTo; i++)
                 {
-                    var ptr = (uint*)buf.Address;
-                    int width = buf.Size.Width;
-
-                    ptr += y * buf.Size.Width;
-
-                    int i = 0;
-                    int iTo;
-
-                    while (true)
-                    {
-                        iTo = Math.Min(i + solid, width);
-
-                        for (; i < iTo; i++)
-                        {
-                            *ptr = color;
-                            ptr++;
-                        }
-
-                        if (iTo < width && gaps > 0)
-                        {
-                            ptr  += gaps;
-                            i += gaps;
-                        }
-
-                        if (i >= width)
-                            break;
-                    }
+                    *ptr = color;
+                    ptr++;
                 }
-            }
-            finally
-            {
+
+                if (iTo < width && gaps > 0)
+                {
+                    ptr  += gaps;
+                    i += gaps;
+                }
+
+                if (i >= width)
+                    break;
             }
 
             return true;

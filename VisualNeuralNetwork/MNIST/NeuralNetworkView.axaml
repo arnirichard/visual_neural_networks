@@ -12,6 +12,9 @@
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
 		</Style>
+		<Style Selector="ComboBox">
+			<Setter Property="Padding" Value="10, 0" />
+		</Style>
 	</UserControl.Styles>
 	<Grid>
 		<Grid.ColumnDefinitions>

@@ -6,15 +6,16 @@
              x:Class="VisualNeuralNetwork.MNIST.NetworkNodeView">
 	<StackPanel Orientation="Vertical">
 
-		<TextBlock Text="{Binding Value, ElementName=classSlider, StringFormat='Current class {0}'}" />
+		<TextBlock Text="{Binding Value, ElementName=classSlider, StringFormat='Current class {0:#,#.}'}" />
 
-		<Slider x:Name="classSlider" Value="{Binding ClassNumber, Mode=TwoWay}" Maximum="9" Minimum="0" />
+		<Slider x:Name="classSlider" Value="{Binding ClassNumber, Mode=TwoWay}" Maximum="9" Minimum="0" SmallChange="1" TickFrequency="1" Ticks="1" />
 
 		<TextBlock Text="{Binding SelectedImageClass.NumberOfSamples, StringFormat='Class samples {0}'}"/>
 
 		<TextBlock Text="{Binding Value, ElementName=sampleSlider, StringFormat='Current sample {0}'}"/>
 
-		<Slider x:Name="sampleSlider" Value="{Binding ImageNumber, Mode=TwoWay}" Maximum="{Binding SelectedImageClass.NumberOfSamples}" Minimum="1"/>
+		<Slider x:Name="sampleSlider" Value="{Binding ImageNumber, Mode=TwoWay}" Maximum="{Binding SelectedImageClass.NumberOfSamples}" Minimum="1"
+				SmallChange="1" TickFrequency="1"/>
 
 		<TextBlock Text="{Binding CurrentImageClassification}" MaxWidth="200"/>
 
@@ -28,19 +29,19 @@
 
 		<TextBlock Text="Image processing"/>
 
-		<ComboBox ItemsSource="{Binding ImageProcessingOptions}"
-                  SelectedItem="{Binding ImageProcessing, Mode=TwoWay}" Margin="10" Padding="0"/>
+		<ComboBox ItemsSource="{Binding ImageProcessingOptions}" 
+                  SelectedItem="{Binding ImageProcessing, Mode=TwoWay}" Margin="10" />
 
 		<TextBlock Text="{Binding Value, ElementName=etaSlider, StringFormat='Learning rate {0:0.##}'}" />
 
 		<Slider x:Name="etaSlider" Value="{Binding LearningRate, Mode=TwoWay}" Maximum="3" Minimum="0.01" SmallChange="0.1"
-                    IsSnapToTickEnabled="True"
+                    IsSnapToTickEnabled="True" 
                     TickFrequency="0.1"/>
 
 		<TextBlock Text="Loss function"/>
 
 		<ComboBox ItemsSource="{Binding LossFunctionOptions}"
-                  SelectedItem="{Binding LossFunction, Mode=TwoWay}" Margin="10" Padding="0"/>
+                  SelectedItem="{Binding LossFunction, Mode=TwoWay}" Margin="10" />
 
 		<TextBlock Text="{Binding Network.Epochs, StringFormat='Epochs {0}'}" />
 

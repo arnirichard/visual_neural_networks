@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using DynamicData;
 using SkiaSharp;
@@ -139,13 +140,14 @@ namespace VisualNeuralNetwork
                 HashSet<int> points = new();
 
                 // draw lines
-                foreach (var line in HorizontalLines)
-                    writeableBitmap.PaintHorizontalLines(line, yMin, yMax, points);
-
+                
                 // draw plot
-                using (var buf = writeableBitmap.Lock())
+                using (ILockedFramebuffer buf = writeableBitmap.Lock())
                 {
-                    var ptr = (uint*)buf.Address;
+                    foreach (var line in HorizontalLines)
+                        buf.PaintHorizontalLines(line, yMin, yMax, points);
+
+                    uint* ptr = (uint*)buf.Address;
 
                     int y, lasty=-1;
                     int sign;
