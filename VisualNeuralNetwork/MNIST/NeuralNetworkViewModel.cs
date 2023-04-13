@@ -33,6 +33,7 @@ namespace VisualNeuralNetwork.MNIST
         public NetworkNode? Network2 { get; set; }
         public bool IsLoading { get; private set; } = true;
         public int BatchSize { get; set; } = 200;
+        public int Epochs { get; set; } = 10;
 
         public NeuralNetworkViewModel()
         {
@@ -50,15 +51,16 @@ namespace VisualNeuralNetwork.MNIST
             Network1?.OnWeightsChanged();
         }
 
-        public void MakeEpoch()
+        public void MakeEpoch(int count)
         {
             if (numberOfTrainingSamples > 0)
-            {
-                int[] indexes = Rand.NextIntArray(numberOfTrainingSamples, BatchSize);
-                
-                Network1?.Train(indexes);
-                Network2?.Train(indexes);
-            }
+                for (int i = 0; i < count; i++)
+                {
+                    int[] indexes = Rand.NextIntArray(numberOfTrainingSamples, BatchSize);
+
+                    Network1?.Train(indexes, i == count-1);
+                    Network2?.Train(indexes, i == count-1);
+                }
         }
 
         internal void LoadData()

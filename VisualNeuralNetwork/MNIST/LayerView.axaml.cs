@@ -22,22 +22,39 @@ namespace VisualNeuralNetwork.MNIST
                         y
                     );
                 }
-
-                List<XyPlotModel> result = new();
-                int index = 0;
-                for (int i = 0; i < arr.Shape[0]; i++)
+                else if (arr.Shape[1] < 100)
                 {
-                    float[] y = new float[arr.Shape[1]];
-                    for (int j = 0; j < y.Length; j++)
+                    List<XyPlotModel> result = new();
+                    int index = 0;
+                    for (int i = 0; i < arr.Shape[0]; i++)
                     {
-                        y[j] = (float)arr.Data[index++];
+                        float[] y = new float[arr.Shape[1]];
+                        for (int j = 0; j < y.Length; j++)
+                        {
+                            y[j] = (float)arr.Data[index++];
+                        }
+                        result.Add(new XyPlotModel(
+                            y
+                        ));
                     }
-                    result.Add(new XyPlotModel(
-                        y
-                    ));
+                    return result;
                 }
+                else
+                {
+                    List<ArraySegment<double>> result = new();
+                    int index = 0;
+                    for (int i = 0; i < arr.Shape[0]; i++)
+                    {
+                        double[] y = new double[arr.Shape[1]];
+                        for (int j = 0; j < y.Length; j++)
+                        {
+                            y[j] = arr.Data[index++];
+                        }
+                        result.Add(new ArraySegment<double>(y));
+                    }
 
-                return result;
+                    return result;
+                }
             }
 
             return value;

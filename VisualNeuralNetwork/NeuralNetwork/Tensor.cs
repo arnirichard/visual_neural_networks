@@ -332,7 +332,7 @@ namespace VisualNeuralNetwork.NeuralNetwork
                 {
                     double sum = 0;
                     index = i * p;
-                    otherIndex = other.GetIndex(0, j);
+                    otherIndex = j; //00a other.GetIndex(0, j);
                     for (int k = 0; k < p; k++)
                     {
                         sum += Data[index++] * other.Data[otherIndex];

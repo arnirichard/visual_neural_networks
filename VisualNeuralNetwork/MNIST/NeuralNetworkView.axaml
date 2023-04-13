@@ -36,8 +36,16 @@
 
 		<local:NetworkNodeView DataContext="{Binding Network2}" Grid.Column="3"/>
 
-		<StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="20, 0" HorizontalAlignment="Center"
-			Grid.ColumnSpan="5">
+		<StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="20, 0" HorizontalAlignment="Center" Grid.ColumnSpan="5">
+
+			<TextBlock Text="{Binding Value, ElementName=epochsSlider, StringFormat='Epochs at time {0:#,#.} '}" VerticalAlignment="Center"/>
+
+			<Slider x:Name="epochsSlider" Value="{Binding Epochs, Mode=TwoWay}" Maximum="1000" Minimum="1" Width="200" />
+
+			<Button Click="MultiEpoch_Click" Padding="20,0">
+				Epoch batch
+			</Button>
+
 			<Button Click="NextEpoch_Click" Padding="20,0">
 				Next Epoch
 			</Button>
@@ -46,7 +54,7 @@
 				Restart
 			</Button>
 
-			<TextBlock Text="{Binding Value, ElementName=batchSizeSlider, StringFormat='Batch size {0}'}" VerticalAlignment="Center"/>
+			<TextBlock Text="{Binding Value, ElementName=batchSizeSlider, StringFormat='Batch size {0} '}" VerticalAlignment="Center"/>
 
 			<Slider x:Name="batchSizeSlider" Value="{Binding BatchSize, Mode=TwoWay}" Maximum="1000" Minimum="1" Width="200"/>
 		</StackPanel>

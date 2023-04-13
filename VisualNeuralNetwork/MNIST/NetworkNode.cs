@@ -20,7 +20,7 @@ namespace VisualNeuralNetwork.MNIST
     class NetworkNode : ViewModelBase
     {
         public const int ImageDimension = 28;
-        public const int NumberOfNeurons = 40;
+        public const int NumberOfNeurons = 10;
         public const int ImageSize = ImageDimension * ImageDimension;
 
         public Network Network { get; private set; }
@@ -156,15 +156,18 @@ namespace VisualNeuralNetwork.MNIST
                 });
         }
 
-        internal void Train(int[] indexes)
+        internal void Train(int[] indexes, bool calcPerformance)
         {
             if (IncludeImageInTraining)
                 indexes[0] = GetCurrentImageIndex();
             Tensor input = tensorData.Input.GetSubTensor(indexes);
             Tensor target = tensorData.Target.GetSubTensor(indexes);
             Network.Train(input, target, learningRate);
-            CalculatePerformance();
-            UpdateImage();
+            if (calcPerformance)
+            {
+                CalculatePerformance();
+                UpdateImage();
+            }
         }
 
         internal void OnWeightsChanged()

@@ -52,6 +52,10 @@ namespace VisualNeuralNetwork
                 {
                     Redraw(values);
                 }
+                else if (DataContext is ArraySegment<double> dvalues)
+                {
+                    Redraw(dvalues);
+                }
             });
 
             this.GetObservable(NumColumnsProperty).Subscribe(value =>
@@ -59,6 +63,10 @@ namespace VisualNeuralNetwork
                 if (DataContext is ArraySegment<byte> values)
                 {
                     Redraw(values);
+                }
+                else if (DataContext is ArraySegment<double> dvalues)
+                {
+                    Redraw(dvalues);
                 }
             });
 
@@ -81,7 +89,32 @@ namespace VisualNeuralNetwork
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            WriteableBitmap? wbitmap = CreateBitmap(values, width, height);
+            WriteableBitmap? wbitmap = CreateBitmap(values, width, height); // DrawGridPlot.Draw<byte>(values, width, height);
+
+            if (wbitmap != null)
+            {
+                IsVisible = true;
+                image.Source = wbitmap;
+            }
+        }
+
+        void Redraw(ArraySegment<double> values)
+        {
+            if (grid.Bounds.Width == 0 || grid.Bounds.Height == 0 || NumColumns <= 0)
+                return;
+
+            int width = (int)grid.Bounds.Width;
+            int height = (int)grid.Bounds.Height;
+
+            double max = values.Max();
+            double min = values.Min();
+            double range = max - min;
+
+            byte[] bytes = range == 0
+                ? new byte[values.Count]
+                : values.Select(d => (byte)(d / range * 255)).ToArray();
+                 
+            WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height);
 
             if (wbitmap != null)
             {
@@ -99,14 +132,14 @@ namespace VisualNeuralNetwork
                     Avalonia.Platform.PixelFormat.Bgra8888,
                     Avalonia.Platform.AlphaFormat.Unpremul);
 
-                int rows = (values.Count+ NumColumns-1) / NumColumns;
+                int rows = (values.Count + NumColumns - 1) / NumColumns;
                 double columnWidth = width / (double)NumColumns;
                 double rowHeight = height / (double)rows;
                 int value;
                 uint colorValue;
                 long display;
                 int channelValue = (int)Channel;
-                canvas.Children.Clear();                
+                canvas.Children.Clear();
                 double fontSize = height / NumColumns * 0.3;
                 int posX, posY;
                 double x = 0, y = -rowHeight;
@@ -150,7 +183,7 @@ namespace VisualNeuralNetwork
 
                     x += columnWidth;
                 }
-                    
+
                 return writeableBitmap;
             }
             catch

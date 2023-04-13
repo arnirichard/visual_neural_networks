@@ -13,9 +13,17 @@ namespace VisualNeuralNetwork.MNIST
 
         public void NextEpoch_Click(object? sender, RoutedEventArgs args)
         {
+            if (DataContext is NeuralNetworkViewModel vm)
+            {
+                vm.MakeEpoch(1);
+            }
+        }
+
+        public void MultiEpoch_Click(object? sender, RoutedEventArgs args)
+        {
             if(DataContext is NeuralNetworkViewModel vm)
             {
-                vm.MakeEpoch();
+                vm.MakeEpoch(vm.Epochs);
             }
         }
 

@@ -36,9 +36,14 @@
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<vnn:XYPlot x:Name="weightPlot" Margin="3" MinWidth="100" Height="100" MaxWidth="200"
+					<Grid>
+						<vnn:GridPlot x:Name="weightGridPlot" Margin="3" Width="112" Height="112" Background="Transparent"
+                                NumColumns="28" GrayScale="True" Channel="Blue"
+                                />
+						<vnn:XYPlot x:Name="weightXyPlot" Margin="3" MinWidth="100" Height="100" MaxWidth="200" Background="Transparent"
                                 Initialized="weightPlot_Loaded"
-                                /> 
+                                />
+					</Grid>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>

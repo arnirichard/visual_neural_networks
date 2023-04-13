@@ -111,14 +111,13 @@ namespace VisualNeuralNetwork
 
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
-            //if (data.Y.Length > width)
-            //    width = (int)Math.Min(MaxWidth, data.Y.Length);
 
             WriteableBitmap? wbm = CreateBitmap(data, width, height);
 
             if (wbm != null)
             {
                 image.Source = wbm;
+                IsVisible = true;
             }
         }
 
@@ -129,12 +128,15 @@ namespace VisualNeuralNetwork
                 WriteableBitmap writeableBitmap = new WriteableBitmap(
                     new PixelSize(width, height),
                     new Vector(96, 96),
-                    Avalonia.Platform.PixelFormat.Bgra8888,
-                    Avalonia.Platform.AlphaFormat.Unpremul);
+                    PixelFormat.Bgra8888,
+                    AlphaFormat.Unpremul);
 
-                float yMin = data.Y.Min() * 1.1f;
-                float yMax = data.Y.Max() * 1.1f;
+                float yMin = data.Y.Min();
+                float yMax = data.Y.Max();
                 float yRange = yMax - yMin;
+                yMax += yRange * 0.1f;
+                yMin -= yRange * 0.1f;
+                yRange = yMax - yMin;
                 uint color = (uint)Black;
 
                 HashSet<int> points = new();
@@ -154,6 +156,7 @@ namespace VisualNeuralNetwork
                     float dpx = buf.Size.Width / (float)data.Y.Length;
                     int ipx = 0;
                     int toIpx;
+                    int counterX = 0, counterY = 0;
 
                     for (int x = 0; x < data.Y.Length; x++)
                     {
@@ -163,7 +166,8 @@ namespace VisualNeuralNetwork
                         {
                             lasty = y;
                             ptr += y * buf.Size.Width;
-                            if(y > -1 && y < buf.Size.Height)
+                            counterY += y;
+                            if (y > -1 && y < buf.Size.Height)
                                 *ptr = color;
                         }
 
@@ -172,6 +176,7 @@ namespace VisualNeuralNetwork
                         while (lasty != y)
                         {
                             lasty += sign;
+                            counterY += sign;
                             ptr += buf.Size.Width * sign;
                             if (lasty > -1 && lasty < buf.Size.Height)
                                 *ptr = color;
@@ -181,9 +186,11 @@ namespace VisualNeuralNetwork
 
                         while (ipx < toIpx)
                         {
+                            counterX++;
                             ptr += 1;
                             ipx++;
-                            *ptr = color;
+                            if(y > -1 && y < buf.Size.Height)
+                                *ptr = color;
                         }
                     }
                 }
