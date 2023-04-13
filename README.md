@@ -5,7 +5,9 @@ Using the MNIST dataset (over 100.000 images of size 28x28px grayscale), users c
 
 The two networks have identical random weights at the start. Minibatch size can be adjusted.
 
-Each epoch is one pass of training with a single minibatch.
+Each epoch is one pass of training with a single minibatch. 
+
+Training is performed on 90% of the data, and test is performed on the remaining 10%
 
 Users can see the prediction for every image and include it in the training batch.
 
