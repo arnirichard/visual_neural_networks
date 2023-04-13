@@ -13,4 +13,6 @@ Users can see the prediction for every image and include it in the training batc
 
 I can't guarantee that all the calculations are correct, but it is possible to optimize the tensor calculations further.
 
+It would be possible to show visually what output neurons are strongly correlated with which hidden neurons, thereby giving a better insight into the model.
+
 ![Alt text](screenshot.png?raw=true)
