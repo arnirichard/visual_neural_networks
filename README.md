@@ -13,7 +13,7 @@ Users can see the prediction for every image and include it in the training batc
 
 "Find failed" button will find the next image in the class that has incorrect classification. By including that image in the training it is possible to train the model faster and eventually classify all images correctly (If images are strecthed).
 
-I can't guarantee that all the calculations are correct, but it is possible to optimize the tensor calculations further.
+I can't guarantee that all the calculations are correct, but it is possible to optimize the tensor calculations further, especially by using a GPU.
 
 It would be possible to show visually what output neurons are strongly correlated with which hidden neurons, thereby giving a better insight into the model.
 
