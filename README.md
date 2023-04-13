@@ -17,4 +17,6 @@ I can't guarantee that all the calculations are correct, but it is possible to o
 
 It would be possible to show visually what output neurons are strongly correlated with which hidden neurons, thereby giving a better insight into the model.
 
+I was hoping the weight plots shown as 2D grid would show patterns more correlated with the digits.
+
 ![Alt text](screenshot.png?raw=true)
