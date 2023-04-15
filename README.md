@@ -1,7 +1,7 @@
 # visual_neural_networks
 Neural network implemented from scratch with visual effect in .Net and Avalonia
 
-Using the MNIST dataset (over 100.000 images of size 28x28px grayscale), users can make side-by-side comparison of simple neural networks consisting of simple dense layers, varying the image pre-processing, learning rate, and cost functions.
+Using the MNIST dataset (over 100.000 images of size 28x28px grayscale), users can make side-by-side comparison of two simple neural networks consisting of two simple dense layers with 10 neurons each, varying the image pre-processing, learning rate, and cost functions.
 
 The weights and biases are shown as gridplots and xy-plots. Using 10 hidden neurons the goal was to replicate patterns in the 2-d view of the weights correlating with the digits.
 
