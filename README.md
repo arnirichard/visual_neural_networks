@@ -13,7 +13,7 @@ Training is performed on 90% of the data, and test is performed on the remaining
 
 Users can see the prediction for every image and include it in the training batch.
 
-"Find failed" button will find the next image in the class that has incorrect classification. By including that image in the training it is possible to train the model faster and eventually classify all images correctly (If images are stretched).
+"Find failed" button will find the next image in the class that has incorrect classification. By including that image in the training it is possible to train the model faster and eventually classify all images correctly (If images are stretched), even though there are only 10 neurons in the hidden layer.
 
 I can't guarantee that all the calculations are correct, but it is possible to optimize the tensor calculations further, especially by using a GPU.
 
