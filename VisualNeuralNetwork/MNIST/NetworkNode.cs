@@ -185,21 +185,6 @@ namespace VisualNeuralNetwork.MNIST
             return result;
         }
 
-        //(ImageClass imclass, int i)? GetImageFromIndex(int index)
-        //{
-        //    int baseIndex = 0;
-        //    foreach (var c in Classes)
-        //    {
-        //        if(index < baseIndex + c.NumberOfSamples)
-        //        {
-        //            return (c, index - baseIndex);
-        //        }
-        //        baseIndex += c.NumberOfSamples;
-        //    }
-
-        //    return null;
-        //}
-
         void CalculatePerformance()
         {
             TensorData td = tensorData;
@@ -259,39 +244,30 @@ namespace VisualNeuralNetwork.MNIST
             if (c != null)
                 ThreadPool.QueueUserWorkItem(delegate
                 {
-                    try
-                    {
-                        int outputClass;
+                    int outputClass;
 
-                        while (startIndex >= 0)
+                    while (startIndex >= 0)
+                    {
+                        for (int i = startIndex; i < c.NumberOfSamples; i++)
                         {
-                            for (int i = startIndex; i < c.NumberOfSamples; i++)
-                            {
-                                var output = nw.FeedForward(c.GetImage(i, ImageDimension, imageProcessing));
-                                outputClass = output.MaxIndex();
+                            var output = nw.FeedForward(c.GetImage(i, ImageDimension, imageProcessing));
+                            outputClass = output.MaxIndex();
 
-                                if (outputClass != c.Class)
+                            if (outputClass != c.Class)
+                            {
+                                if (Network == nw && SelectedImageClass == c)
                                 {
-                                    if (Network == nw && SelectedImageClass == c)
-                                    {
-                                        ImageNumber = i + 1;
-                                    }
-                                    startIndex = -1;
-                                    break;
+                                    ImageNumber = i + 1;
                                 }
+                                startIndex = -1;
+                                break;
                             }
-                            startIndex = startIndex > 0
-                                ? 0
-                                : -1;
                         }
-                    }
-                    finally
-                    {
-                        
+                        startIndex = startIndex > 0
+                            ? 0
+                            : -1;
                     }
                 });
         }
-
-        
     }   
 }
