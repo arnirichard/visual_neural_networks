@@ -20,7 +20,7 @@ namespace VisualNeuralNetwork.MNIST
     class NetworkNode : ViewModelBase
     {
         public const int ImageDimension = 28;
-        public const int NumberOfNeurons = 10;
+        public const int NumberOfNeurons = 20;
         public const int ImageSize = ImageDimension * ImageDimension;
 
         public Network Network { get; private set; }
