@@ -3,6 +3,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Data.Converters;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using VisualNeuralNetwork.NeuralNetwork;
@@ -11,6 +12,8 @@ namespace VisualNeuralNetwork.MNIST
 {
     public class DataContextConverter : IValueConverter
     {
+        ObservableCollection<XyPlotModel> xyPlotModels = new ObservableCollection<XyPlotModel>();
+
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is Tensor arr)
@@ -18,9 +21,7 @@ namespace VisualNeuralNetwork.MNIST
                 if (arr.Shape.Length == 1)
                 {
                     float[] y = arr.Data.Select(f => (float)f).ToArray();
-                    return new XyPlotModel(
-                        y
-                    );
+                    return new XyPlotModel(y);
                 }
                 else if (arr.Shape[1] < 100)
                 {
@@ -33,9 +34,7 @@ namespace VisualNeuralNetwork.MNIST
                         {
                             y[j] = (float)arr.Data[index++];
                         }
-                        result.Add(new XyPlotModel(
-                            y
-                        ));
+                        result.Add(new XyPlotModel(y));
                     }
                     return result;
                 }
@@ -85,6 +84,7 @@ namespace VisualNeuralNetwork.MNIST
                     plot.HorizontalLines.Add(new LinesDefinition(0, 1, true, (uint)XYPlot.Grey));
                     plot.HorizontalLines.Add(new LinesDefinition(0, 0.1f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
                     plot.HorizontalLines.Add(new LinesDefinition(0, 0.01f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
+                    plot.HorizontalLines.Add(new LinesDefinition(0, 0.001f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
 
                     plot.PropertyChanged += Plot_PropertyChanged;
                     plot.IsVisible = plot.DataContext is XyPlotModel;

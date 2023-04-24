@@ -94,12 +94,12 @@ namespace VisualNeuralNetwork
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            WriteableBitmap? wbitmap = await CreateBitmapAsync(values, width, height, NumColumns, redrawTime);
+            //WriteableBitmap? wbitmap = await CreateBitmapAsync(values, width, height, NumColumns, redrawTime);
+            WriteableBitmap? wbitmap = CreateBitmap(values, width, height, NumColumns, redrawTime);
 
             if (wbitmap != null && redrawTime == lastRedrawTime)
             {
                 image.Source = wbitmap;
-                IsVisible = true;
             }
         }
 
@@ -121,8 +121,8 @@ namespace VisualNeuralNetwork
                 ? new byte[values.Count]
                 : values.Select(d => (byte)((d-min) / range * 255)).ToArray();
                  
-            WriteableBitmap? wbitmap = await CreateBitmapAsync(bytes, width, height, NumColumns, redrawTime);
-            //WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height, NumColumns, redrawTime);
+            //WriteableBitmap? wbitmap = await CreateBitmapAsync(bytes, width, height, NumColumns, redrawTime);
+            WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height, NumColumns, redrawTime);
 
             if (wbitmap != null && redrawTime == lastRedrawTime)
             {

@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VisualNeuralNetwork
 {
@@ -118,7 +119,8 @@ namespace VisualNeuralNetwork
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            WriteableBitmap? wbm = await CreateBitmap(data, width, height, redrawTime);
+            //WriteableBitmap? wbm = await CreateBitmapAsync(data, width, height, redrawTime);
+            WriteableBitmap? wbm = CreateBitmap(data, width, height, redrawTime);
 
             if (wbm != null)
             {
@@ -126,97 +128,103 @@ namespace VisualNeuralNetwork
             }
         }
 
-        async Task<WriteableBitmap?> CreateBitmap(XyPlotModel data, int width, int height, DateTime redrawTime)
+        async Task<WriteableBitmap?> CreateBitmapAsync(XyPlotModel data, int width, int height, DateTime redrawTime)
         {
             TaskCompletionSource<WriteableBitmap?> taskCompletionSource =
                 new TaskCompletionSource<WriteableBitmap?>();
 
             ThreadPool.QueueUserWorkItem(delegate
             {
-                try
-                {
-                    WriteableBitmap writeableBitmap = new WriteableBitmap(
-                        new PixelSize(width, height),
-                        new Vector(96, 96),
-                        PixelFormat.Bgra8888,
-                        AlphaFormat.Unpremul);
+                taskCompletionSource.SetResult(CreateBitmap(data, width, height, redrawTime));
 
-                    float yMin = data.Y.Min();
-                    float yMax = data.Y.Max();
-                    float yRange = yMax - yMin;
-                    yMax += yRange * 0.1f;
-                    yMin -= yRange * 0.1f;
-                    yRange = yMax - yMin;
-                    uint color = (uint)Black;
-
-                    HashSet<int> points = new();
-
-                    // draw lines
-
-                    // draw plot
-                    unsafe
-                    {
-                        using (ILockedFramebuffer buf = writeableBitmap.Lock())
-                        {
-                            foreach (var line in HorizontalLines)
-                                buf.PaintHorizontalLines(line, yMin, yMax, points);
-
-                            uint* ptr = (uint*)buf.Address;
-
-                            int y, lasty = -1;
-                            int sign;
-                            float dpx = buf.Size.Width / (float)data.Y.Length;
-                            int ipx = 0;
-                            int toIpx;
-                            int counterX = 0, counterY = 0;
-
-                            for (int x = 0; x < data.Y.Length; x++)
-                            {
-                                y = (int)((1 - (data.Y[x] - yMin) / yRange) * buf.Size.Height);
-
-                                if (x == 0)
-                                {
-                                    lasty = y;
-                                    ptr += y * buf.Size.Width;
-                                    counterY += y;
-                                    if (y > -1 && y < buf.Size.Height)
-                                        *ptr = color;
-                                }
-
-                                sign = Math.Sign(y - lasty);
-                                // plot vertical line from lasty to y
-                                while (lasty != y)
-                                {
-                                    lasty += sign;
-                                    counterY += sign;
-                                    ptr += buf.Size.Width * sign;
-                                    if (lasty > -1 && lasty < buf.Size.Height)
-                                        *ptr = color;
-                                }
-                                // plot horizontal line
-                                toIpx = Math.Min((int)((x + 1) * dpx), buf.Size.Width);
-
-                                while (ipx < toIpx)
-                                {
-                                    counterX++;
-                                    ptr += 1;
-                                    ipx++;
-                                    if (y > -1 && y < buf.Size.Height)
-                                        *ptr = color;
-                                }
-                            }
-                        }
-                    }
-
-                    taskCompletionSource.SetResult(writeableBitmap);
-                }
-                catch
-                {
-                    taskCompletionSource.SetResult(null);
-                }
             });
 
             return await taskCompletionSource.Task;
+        }
+
+        WriteableBitmap? CreateBitmap(XyPlotModel data, int width, int height, DateTime redrawTime)
+        {
+            try
+            {
+                WriteableBitmap writeableBitmap = new WriteableBitmap(
+                    new PixelSize(width, height),
+                    new Vector(96, 96),
+                    PixelFormat.Bgra8888,
+                    AlphaFormat.Unpremul);
+
+                float yMin = data.Y.Min();
+                float yMax = data.Y.Max();
+                float yRange = yMax - yMin;
+                yMax += yRange * 0.1f;
+                yMin -= yRange * 0.1f;
+                yRange = yMax - yMin;
+                uint color = (uint)Black;
+
+                HashSet<int> points = new();
+
+                // draw lines
+
+                // draw plot
+                unsafe
+                {
+                    using (ILockedFramebuffer buf = writeableBitmap.Lock())
+                    {
+                        foreach (var line in HorizontalLines)
+                            buf.PaintHorizontalLines(line, yMin, yMax, points);
+
+                        uint* ptr = (uint*)buf.Address;
+
+                        int y, lasty = -1;
+                        int sign;
+                        float dpx = buf.Size.Width / (float)data.Y.Length;
+                        int ipx = 0;
+                        int toIpx;
+                        int counterX = 0, counterY = 0;
+
+                        for (int x = 0; x < data.Y.Length; x++)
+                        {
+                            y = (int)((1 - (data.Y[x] - yMin) / yRange) * buf.Size.Height);
+
+                            if (x == 0)
+                            {
+                                lasty = y;
+                                ptr += y * buf.Size.Width;
+                                counterY += y;
+                                if (y > -1 && y < buf.Size.Height)
+                                    *ptr = color;
+                            }
+
+                            sign = Math.Sign(y - lasty);
+                            // plot vertical line from lasty to y
+                            while (lasty != y)
+                            {
+                                lasty += sign;
+                                counterY += sign;
+                                ptr += buf.Size.Width * sign;
+                                if (lasty > -1 && lasty < buf.Size.Height)
+                                    *ptr = color;
+                            }
+                            // plot horizontal line
+                            toIpx = Math.Min((int)((x + 1) * dpx), buf.Size.Width);
+
+                            while (ipx < toIpx)
+                            {
+                                counterX++;
+                                ptr += 1;
+                                ipx++;
+                                if (y > -1 && y < buf.Size.Height)
+                                    *ptr = color;
+                            }
+                        }
+                    }
+                }
+
+                return writeableBitmap;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
