@@ -63,8 +63,8 @@ namespace VisualNeuralNetwork.MNIST
                 if (numberOfTrainingSamples > 0)
                     for (int i = 0; i < count; i++)
                     {
-                        Network1?.Train(BatchSize, i == count - 1);
-                        Network2?.Train(BatchSize, i == count - 1);
+                        Network1?.Train(BatchSize, i == count - 1 || i % 100 == 0);
+                        Network2?.Train(BatchSize, i == count - 1 || i % 100 == 0);
                     }
                 isTraining = false;
             });

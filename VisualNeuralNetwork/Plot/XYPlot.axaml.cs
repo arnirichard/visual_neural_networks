@@ -119,8 +119,8 @@ namespace VisualNeuralNetwork
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            //WriteableBitmap? wbm = await CreateBitmapAsync(data, width, height, redrawTime);
-            WriteableBitmap? wbm = CreateBitmap(data, width, height, redrawTime);
+            WriteableBitmap? wbm = await CreateBitmapAsync(data, width, height, redrawTime);
+            //WriteableBitmap? wbm = CreateBitmap(data, width, height, redrawTime);
 
             if (wbm != null)
             {
@@ -183,6 +183,11 @@ namespace VisualNeuralNetwork
 
                         for (int x = 0; x < data.Y.Length; x++)
                         {
+                            if (lastRedrawTime != redrawTime)
+                            {
+                                return null;
+                            }
+
                             y = (int)((1 - (data.Y[x] - yMin) / yRange) * buf.Size.Height);
 
                             if (x == 0)

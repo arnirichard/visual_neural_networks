@@ -7,6 +7,7 @@
              x:Class="VisualNeuralNetwork.MNIST.LayerView">
 	<UserControl.Resources>
 		<local:DataContextConverter x:Key="datacontextConverter"/>
+		<local:DataContextConverter x:Key="datacontextConverter2"/>
 	</UserControl.Resources>
 	<StackPanel>
 		<StackPanel Orientation="Horizontal" >
@@ -28,7 +29,7 @@
 			</StackPanel>
 		</StackPanel>
 		<TextBlock Margin="10,0">Weights</TextBlock>
-		<ItemsControl x:Name="weighs_ItemsControl" ItemsSource="{Binding Weights, Converter={StaticResource datacontextConverter}}">
+		<ItemsControl x:Name="weighs_ItemsControl" ItemsSource="{Binding Weights, Converter={StaticResource datacontextConverter2}}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<WrapPanel/>
@@ -39,9 +40,10 @@
 					<Grid Margin="3">
 						<vnn:GridPlot x:Name="weightGridPlot" Width="112" Height="112" Background="Transparent"
                                 NumColumns="28" GrayScale="True" Channel="Blue" Initialized="gridPlot_Loaded"
+									  DataContext="{Binding DataContext}"
                                 />
 						<vnn:XYPlot x:Name="weightXyPlot" MinWidth="100" Height="100" MaxWidth="200" Background="Transparent"
-                                Initialized="weightPlot_Loaded"
+                                Initialized="weightPlot_Loaded" DataContext="{Binding DataContext}"
                                 />
 					</Grid>
 				</DataTemplate>

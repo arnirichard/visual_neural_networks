@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Data.Converters;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,9 +11,25 @@ using VisualNeuralNetwork.NeuralNetwork;
 
 namespace VisualNeuralNetwork.MNIST
 {
+    class DataContextWrapper : ViewModelBase
+    {
+        public object? DataContext { get; private set; }
+
+        public DataContextWrapper(object? dataContext)
+        {
+            DataContext = dataContext;
+        }
+
+        public void SetDataContext(object dataContext)
+        {
+            DataContext = dataContext;
+            this.RaisePropertyChanged("DataContext");
+        }
+    }
+
     public class DataContextConverter : IValueConverter
     {
-        ObservableCollection<XyPlotModel> xyPlotModels = new ObservableCollection<XyPlotModel>();
+        ObservableCollection<DataContextWrapper> dataContexts = new ObservableCollection<DataContextWrapper>();
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
@@ -25,7 +42,6 @@ namespace VisualNeuralNetwork.MNIST
                 }
                 else if (arr.Shape[1] < 100)
                 {
-                    List<XyPlotModel> result = new();
                     int index = 0;
                     for (int i = 0; i < arr.Shape[0]; i++)
                     {
@@ -34,13 +50,16 @@ namespace VisualNeuralNetwork.MNIST
                         {
                             y[j] = (float)arr.Data[index++];
                         }
-                        result.Add(new XyPlotModel(y));
+                        if (i < dataContexts.Count)
+                            dataContexts[i].SetDataContext(new XyPlotModel(y));
+                        else
+                            dataContexts.Add(new DataContextWrapper(new XyPlotModel(y)));
                     }
-                    return result;
+                    return dataContexts;
                 }
                 else
                 {
-                    List<ArraySegment<double>> result = new();
+                    //List<ArraySegment<double>> result = new();
                     int index = 0;
                     for (int i = 0; i < arr.Shape[0]; i++)
                     {
@@ -49,10 +68,13 @@ namespace VisualNeuralNetwork.MNIST
                         {
                             y[j] = arr.Data[index++];
                         }
-                        result.Add(new ArraySegment<double>(y));
+                        if (i < dataContexts.Count)
+                            dataContexts[i].SetDataContext(new ArraySegment<double>(y));
+                        else
+                            dataContexts.Add(new DataContextWrapper(new ArraySegment<double>(y)));
                     }
 
-                    return result;
+                    return dataContexts;
                 }
             }
 
