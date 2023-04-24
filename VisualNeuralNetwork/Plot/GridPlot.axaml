@@ -4,10 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 DataContextChanged="GridPlot_DataContextChanged"
              x:Class="VisualNeuralNetwork.GridPlot">
-	<Border x:Name="border" Grid.Column="1" Grid.Row="0" BorderBrush="Black" BorderThickness="0">
+	<Border BorderBrush="Black" BorderThickness="1">
 		<Grid x:Name="grid">
 			<Image Name="image" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-			<Canvas Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 		</Grid>
 	</Border>
 </UserControl>

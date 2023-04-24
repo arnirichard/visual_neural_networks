@@ -66,7 +66,7 @@ namespace VisualNeuralNetwork.MNIST
         public bool IncludeImageInTraining { get; set; } = true;
         static List<LossFunction> LF = new List<LossFunction> { new MSE(), new SoftmaxLoss(), new CrossEntropyLoss() };
         public List<LossFunction> LossFunctionOptions => LF;
-        LossFunction lossFunction = LF[0];
+        LossFunction lossFunction = LF[2];
         public LossFunction LossFunction
         {
             get => lossFunction;
@@ -101,8 +101,12 @@ namespace VisualNeuralNetwork.MNIST
             }
         }
         public double PerformancePerc { get; set; }
+        public double Epochs { get; set; }
+        
         TensorData tensorData;
         Dictionary<ImageProcessing, TensorData> tensors;
+        int trainingIndex;
+        int trainingClass;
         public NetworkNode(List<ImageClass> classes, Dictionary<ImageProcessing, TensorData> tensors)
         {
             Classes = classes;
@@ -140,8 +144,10 @@ namespace VisualNeuralNetwork.MNIST
         {
             Network = GetNewNetwork();
             PerformancePerc = 0;
+            Epochs = 0;
             this.RaisePropertyChanged("Network");
             this.RaisePropertyChanged("PerformancePerc");
+            this.RaisePropertyChanged("Epochs");
             UpdateImage();
             CalculatePerformance();
         }
@@ -156,18 +162,44 @@ namespace VisualNeuralNetwork.MNIST
                 });
         }
 
-        internal void Train(int[] indexes, bool calcPerformance)
+        internal void Train(int batchSize, bool calcPerformance)
         {
-            if (IncludeImageInTraining)
-                indexes[0] = GetCurrentImageIndex();
+            int[] indexes = GetTrainingIndexes(batchSize);
             Tensor input = tensorData.Input.GetSubTensor(indexes);
             Tensor target = tensorData.Target.GetSubTensor(indexes);
             Network.Train(input, target, learningRate);
+            Epochs += batchSize / (double)tensorData.NumberOfTrainingSamples;
+            this.RaisePropertyChanged("Epochs");
             if (calcPerformance)
             {
                 CalculatePerformance();
                 UpdateImage();
             }
+        }
+
+        int[] GetTrainingIndexes(int batchSize)
+        {
+            List<int> result = new();
+
+            if (IncludeImageInTraining)
+                result.Add(GetCurrentImageIndex());
+
+            while (result.Count < batchSize)
+            {
+                var cl = Classes[trainingClass++ % Classes.Count];
+                if (trainingClass == Classes.Count)
+                {
+                    trainingClass = 0;
+                    trainingIndex++;
+                }
+
+                result.Add(trainingIndex % tensorData.NumberOfTrainingSamples);
+                trainingIndex += cl.NumberOfTrainingSamples;
+            }
+
+            trainingIndex = trainingIndex % tensorData.NumberOfTrainingSamples;
+
+            return result.ToArray();
         }
 
         internal void OnWeightsChanged()
@@ -188,7 +220,6 @@ namespace VisualNeuralNetwork.MNIST
         void CalculatePerformance()
         {
             TensorData td = tensorData;
-            int epoch = Network.Epochs;
 
             ThreadPool.QueueUserWorkItem(delegate
             {

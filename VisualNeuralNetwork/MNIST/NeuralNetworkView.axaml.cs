@@ -23,7 +23,7 @@ namespace VisualNeuralNetwork.MNIST
         {
             if(DataContext is NeuralNetworkViewModel vm)
             {
-                vm.MakeEpoch(vm.Epochs);
+                vm.MakeEpoch(vm.NumberOfBatches);
             }
         }
 

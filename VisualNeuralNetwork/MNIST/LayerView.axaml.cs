@@ -87,7 +87,16 @@ namespace VisualNeuralNetwork.MNIST
                     plot.HorizontalLines.Add(new LinesDefinition(0, 0.01f, false, (uint)XYPlot.Beige, minPointSpacing: 5));
 
                     plot.PropertyChanged += Plot_PropertyChanged;
+                    plot.IsVisible = plot.DataContext is XyPlotModel;
                 }
+            }
+        }
+
+        private void gridPlot_Loaded(object sender, System.EventArgs e)
+        {
+            if (sender is GridPlot plot)
+            {
+                plot.IsVisible = plot.DataContext is ArraySegment<double>;
             }
         }
 

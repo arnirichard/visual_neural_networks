@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace VisualNeuralNetwork
 {
@@ -41,6 +43,7 @@ namespace VisualNeuralNetwork
         public ColorChannel Channel { get; set; } = ColorChannel.None;
         public bool GrayScale { get; set; }
         public int AddDisplayValue { get; set; }
+        DateTime lastRedrawTime;
 
         public GridPlot()
         {
@@ -50,11 +53,11 @@ namespace VisualNeuralNetwork
             {
                 if (DataContext is ArraySegment<byte> values)
                 {
-                    Redraw(values);
+                    _ = Redraw(values);
                 }
                 else if (DataContext is ArraySegment<double> dvalues)
                 {
-                    Redraw(dvalues);
+                    _ = Redraw(dvalues);
                 }
             });
 
@@ -62,11 +65,11 @@ namespace VisualNeuralNetwork
             {
                 if (DataContext is ArraySegment<byte> values)
                 {
-                    Redraw(values);
+                    _ = Redraw(values);
                 }
                 else if (DataContext is ArraySegment<double> dvalues)
                 {
-                    Redraw(dvalues);
+                    _ = Redraw(dvalues);
                 }
             });
 
@@ -77,31 +80,35 @@ namespace VisualNeuralNetwork
         {
             if (DataContext is ArraySegment<byte> values)
             {
-                Redraw(values);
+                _ = Redraw(values);
             }
         }
 
-        void Redraw(ArraySegment<byte> values)
+        async Task Redraw(ArraySegment<byte> values)
         {
             if(grid.Bounds.Width == 0 || grid.Bounds.Height == 0 || NumColumns <= 0) 
                 return;
 
+            DateTime redrawTime = lastRedrawTime = DateTime.Now;
+
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            WriteableBitmap? wbitmap = CreateBitmap(values, width, height); // DrawGridPlot.Draw<byte>(values, width, height);
+            WriteableBitmap? wbitmap = await CreateBitmapAsync(values, width, height, NumColumns, redrawTime);
 
-            if (wbitmap != null)
+            if (wbitmap != null && redrawTime == lastRedrawTime)
             {
-                IsVisible = true;
                 image.Source = wbitmap;
+                IsVisible = true;
             }
         }
 
-        void Redraw(ArraySegment<double> values)
+        async Task Redraw(ArraySegment<double> values)
         {
             if (grid.Bounds.Width == 0 || grid.Bounds.Height == 0 || NumColumns <= 0)
                 return;
+
+            DateTime redrawTime = lastRedrawTime = DateTime.Now;
 
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
@@ -114,15 +121,29 @@ namespace VisualNeuralNetwork
                 ? new byte[values.Count]
                 : values.Select(d => (byte)((d-min) / range * 255)).ToArray();
                  
-            WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height);
+            WriteableBitmap? wbitmap = await CreateBitmapAsync(bytes, width, height, NumColumns, redrawTime);
+            //WriteableBitmap? wbitmap = CreateBitmap(bytes, width, height, NumColumns, redrawTime);
 
-            if (wbitmap != null)
+            if (wbitmap != null && redrawTime == lastRedrawTime)
             {
                 image.Source = wbitmap;
             }
         }
 
-        WriteableBitmap? CreateBitmap(ArraySegment<byte> values, int width, int height)
+        async Task<WriteableBitmap?> CreateBitmapAsync(ArraySegment<byte> values, int width, int height, int numColumns, DateTime redrawTime)
+        {
+            TaskCompletionSource<WriteableBitmap?> taskCompletionSource =
+                new TaskCompletionSource<WriteableBitmap?>();
+
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                taskCompletionSource.SetResult(CreateBitmap(values, width, height, numColumns, redrawTime));
+            });
+            
+            return await taskCompletionSource.Task;
+        }
+
+        WriteableBitmap? CreateBitmap(ArraySegment<byte> values, int width, int height, int numColumns, DateTime redrawTime)
         {
             try
             {
@@ -132,21 +153,25 @@ namespace VisualNeuralNetwork
                     Avalonia.Platform.PixelFormat.Bgra8888,
                     Avalonia.Platform.AlphaFormat.Unpremul);
 
-                int rows = (values.Count + NumColumns - 1) / NumColumns;
-                double columnWidth = width / (double)NumColumns;
+                int rows = (values.Count + numColumns - 1) / numColumns;
+                double columnWidth = width / (double)numColumns;
                 double rowHeight = height / (double)rows;
                 int value;
                 uint colorValue;
                 long display;
                 int channelValue = (int)Channel;
-                canvas.Children.Clear();
-                double fontSize = height / NumColumns * 0.3;
-                int posX, posY;
+                double fontSize = height / numColumns * 0.3;
                 double x = 0, y = -rowHeight;
+                int posX, posY;
 
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if (i % NumColumns == 0)
+                    if (lastRedrawTime != redrawTime)
+                    {
+                        return null;
+                    }
+
+                    if (i % numColumns == 0)
                     {
                         y += rowHeight;
                         x = 0;
@@ -186,7 +211,7 @@ namespace VisualNeuralNetwork
 
                 return writeableBitmap;
             }
-            catch
+            catch 
             {
                 return null;
             }

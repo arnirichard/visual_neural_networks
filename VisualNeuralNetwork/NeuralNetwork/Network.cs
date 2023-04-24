@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 
 namespace VisualNeuralNetwork.NeuralNetwork
 {
-    class Network : ViewModelBase
+    class Network
     {
         private List<Layer> layers;
         LossFunction lossFunction;
-
-        public int Epochs { get; set; }
 
         public Network(LossFunction lossFunction, List<Layer> layers)
         {
@@ -62,8 +60,6 @@ namespace VisualNeuralNetwork.NeuralNetwork
                 lossGradient = layer.BackProp(inputs[i], lossGradient, learningRate);
             }
 
-            Epochs++;
-            this.RaisePropertyChanged("Epochs");
         }
 
         public Tensor FeedForward(Tensor input)

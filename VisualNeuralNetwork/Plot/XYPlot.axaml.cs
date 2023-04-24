@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace VisualNeuralNetwork
 {
@@ -60,6 +62,8 @@ namespace VisualNeuralNetwork
         public static readonly StyledProperty<DataPoint?> CurrentDataPointProperty =
             AvaloniaProperty.Register<XYPlot, DataPoint?>(nameof(CurrentDataPoint));
 
+        DateTime lastRedrawTime;
+
         public DataPoint? CurrentDataPoint
         {
             get { return GetValue(CurrentDataPointProperty); }
@@ -74,7 +78,7 @@ namespace VisualNeuralNetwork
             {
                 if (DataContext is XyPlotModel values)
                 {
-                    Redraw(values);
+                    _ = Redraw(values);
                 }
             });
 
@@ -100,107 +104,119 @@ namespace VisualNeuralNetwork
         {
             if (DataContext is XyPlotModel values)
             {
-                Redraw(values);
+                _ = Redraw(values);
             }
         }
 
-        void Redraw(XyPlotModel data)
+        async Task Redraw(XyPlotModel data)
         {
             if(grid.Bounds.Width == 0 || grid.Bounds.Height == 0)
                 return;
 
+            DateTime redrawTime = lastRedrawTime = DateTime.Now;
+
             int width = (int)grid.Bounds.Width;
             int height = (int)grid.Bounds.Height;
 
-            WriteableBitmap? wbm = CreateBitmap(data, width, height);
+            WriteableBitmap? wbm = await CreateBitmap(data, width, height, redrawTime);
 
             if (wbm != null)
             {
                 image.Source = wbm;
-                IsVisible = true;
             }
         }
 
-        unsafe WriteableBitmap? CreateBitmap(XyPlotModel data, int width, int height)
+        async Task<WriteableBitmap?> CreateBitmap(XyPlotModel data, int width, int height, DateTime redrawTime)
         {
-            try
+            TaskCompletionSource<WriteableBitmap?> taskCompletionSource =
+                new TaskCompletionSource<WriteableBitmap?>();
+
+            ThreadPool.QueueUserWorkItem(delegate
             {
-                WriteableBitmap writeableBitmap = new WriteableBitmap(
-                    new PixelSize(width, height),
-                    new Vector(96, 96),
-                    PixelFormat.Bgra8888,
-                    AlphaFormat.Unpremul);
-
-                float yMin = data.Y.Min();
-                float yMax = data.Y.Max();
-                float yRange = yMax - yMin;
-                yMax += yRange * 0.1f;
-                yMin -= yRange * 0.1f;
-                yRange = yMax - yMin;
-                uint color = (uint)Black;
-
-                HashSet<int> points = new();
-
-                // draw lines
-                
-                // draw plot
-                using (ILockedFramebuffer buf = writeableBitmap.Lock())
+                try
                 {
-                    foreach (var line in HorizontalLines)
-                        buf.PaintHorizontalLines(line, yMin, yMax, points);
+                    WriteableBitmap writeableBitmap = new WriteableBitmap(
+                        new PixelSize(width, height),
+                        new Vector(96, 96),
+                        PixelFormat.Bgra8888,
+                        AlphaFormat.Unpremul);
 
-                    uint* ptr = (uint*)buf.Address;
+                    float yMin = data.Y.Min();
+                    float yMax = data.Y.Max();
+                    float yRange = yMax - yMin;
+                    yMax += yRange * 0.1f;
+                    yMin -= yRange * 0.1f;
+                    yRange = yMax - yMin;
+                    uint color = (uint)Black;
 
-                    int y, lasty=-1;
-                    int sign;
-                    float dpx = buf.Size.Width / (float)data.Y.Length;
-                    int ipx = 0;
-                    int toIpx;
-                    int counterX = 0, counterY = 0;
+                    HashSet<int> points = new();
 
-                    for (int x = 0; x < data.Y.Length; x++)
+                    // draw lines
+
+                    // draw plot
+                    unsafe
                     {
-                        y = (int)((1-(data.Y[x]-yMin)/yRange)*buf.Size.Height);
-
-                        if (x == 0)
+                        using (ILockedFramebuffer buf = writeableBitmap.Lock())
                         {
-                            lasty = y;
-                            ptr += y * buf.Size.Width;
-                            counterY += y;
-                            if (y > -1 && y < buf.Size.Height)
-                                *ptr = color;
-                        }
+                            foreach (var line in HorizontalLines)
+                                buf.PaintHorizontalLines(line, yMin, yMax, points);
 
-                        sign = Math.Sign(y - lasty);
-                        // plot vertical line from lasty to y
-                        while (lasty != y)
-                        {
-                            lasty += sign;
-                            counterY += sign;
-                            ptr += buf.Size.Width * sign;
-                            if (lasty > -1 && lasty < buf.Size.Height)
-                                *ptr = color;
-                        }
-                        // plot horizontal line
-                        toIpx = Math.Min((int)((x+1) * dpx), buf.Size.Width);
+                            uint* ptr = (uint*)buf.Address;
 
-                        while (ipx < toIpx)
-                        {
-                            counterX++;
-                            ptr += 1;
-                            ipx++;
-                            if(y > -1 && y < buf.Size.Height)
-                                *ptr = color;
+                            int y, lasty = -1;
+                            int sign;
+                            float dpx = buf.Size.Width / (float)data.Y.Length;
+                            int ipx = 0;
+                            int toIpx;
+                            int counterX = 0, counterY = 0;
+
+                            for (int x = 0; x < data.Y.Length; x++)
+                            {
+                                y = (int)((1 - (data.Y[x] - yMin) / yRange) * buf.Size.Height);
+
+                                if (x == 0)
+                                {
+                                    lasty = y;
+                                    ptr += y * buf.Size.Width;
+                                    counterY += y;
+                                    if (y > -1 && y < buf.Size.Height)
+                                        *ptr = color;
+                                }
+
+                                sign = Math.Sign(y - lasty);
+                                // plot vertical line from lasty to y
+                                while (lasty != y)
+                                {
+                                    lasty += sign;
+                                    counterY += sign;
+                                    ptr += buf.Size.Width * sign;
+                                    if (lasty > -1 && lasty < buf.Size.Height)
+                                        *ptr = color;
+                                }
+                                // plot horizontal line
+                                toIpx = Math.Min((int)((x + 1) * dpx), buf.Size.Width);
+
+                                while (ipx < toIpx)
+                                {
+                                    counterX++;
+                                    ptr += 1;
+                                    ipx++;
+                                    if (y > -1 && y < buf.Size.Height)
+                                        *ptr = color;
+                                }
+                            }
                         }
                     }
-                }
 
-                return writeableBitmap;
-            }
-            catch
-            {
-                return null;
-            }
+                    taskCompletionSource.SetResult(writeableBitmap);
+                }
+                catch
+                {
+                    taskCompletionSource.SetResult(null);
+                }
+            });
+
+            return await taskCompletionSource.Task;
         }
     }
 }

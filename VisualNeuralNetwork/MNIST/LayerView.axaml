@@ -36,11 +36,11 @@
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<Grid>
-						<vnn:GridPlot x:Name="weightGridPlot" Margin="3" Width="112" Height="112" Background="Transparent"
-                                NumColumns="28" GrayScale="True" Channel="Blue"
+					<Grid Margin="3">
+						<vnn:GridPlot x:Name="weightGridPlot" Width="112" Height="112" Background="Transparent"
+                                NumColumns="28" GrayScale="True" Channel="Blue" Initialized="gridPlot_Loaded"
                                 />
-						<vnn:XYPlot x:Name="weightXyPlot" Margin="3" MinWidth="100" Height="100" MaxWidth="200" Background="Transparent"
+						<vnn:XYPlot x:Name="weightXyPlot" MinWidth="100" Height="100" MaxWidth="200" Background="Transparent"
                                 Initialized="weightPlot_Loaded"
                                 />
 					</Grid>

@@ -63,7 +63,7 @@ namespace VisualNeuralNetwork
                 }
                 int pos;
 
-                int lastPos = (int)buf.Size.Height;
+                int lastPos = buf.Size.Height;
 
                 while (val < maxY)
                 {
