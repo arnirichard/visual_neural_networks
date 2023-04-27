@@ -269,31 +269,25 @@ namespace VisualNeuralNetwork.NeuralNetwork
             else
             {
                 int axisSize = _shape[axis];
-                int blockSize = newData.Length;
-                int[] blockIndices = GetBlockIndices(axis, axisSize, blockSize);
+                int index;
+                double sum;
 
                 for (int i = 0; i < newData.Length; i++)
                 {
-                    double sum = 0.0;
-                    for (int j = 0; j < blockIndices.Length; j++)
+                    index = i;
+                    sum = 0.0;
+                    
+                    for (int j = 0; j < axisSize; j++)
                     {
-                        sum += _data[blockIndices[j] + i];
+                        sum += _data[index];
+                        index += newData.Length;
                     }
+                    
                     newData[i] = sum / axisSize;
                 }
             }
 
             return new Tensor(newData, newShape);
-        }
-
-        private int[] GetBlockIndices(int axis, int axisSize, int blockSize)
-        {
-            int[] blockIndices = new int[axisSize];
-            for (int i = 0; i < axisSize; i++)
-            {
-                blockIndices[i] = i * blockSize;
-            }
-            return blockIndices;
         }
 
         public Tensor Apply(Func<double, double>? f)
