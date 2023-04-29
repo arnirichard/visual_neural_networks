@@ -35,7 +35,7 @@ namespace VisualNeuralNetwork.MNIST
             set
             {
                 learningRate = value;
-                this.RaisePropertyChanged("LearningRate");
+                this.RaisePropertyChanged(nameof(LearningRate));
             }
         }
         public ImageClass? SelectedImageClass => ClassNumber < Classes.Count ? Classes[ClassNumber] : null;
@@ -48,8 +48,8 @@ namespace VisualNeuralNetwork.MNIST
                 classNumber = value;
                 ImageNumber = 1;
                 UpdateImage();
-                this.RaisePropertyChanged("ClassNumber");
-                this.RaisePropertyChanged("SelectedImageClass");
+                this.RaisePropertyChanged(nameof(ClassNumber));
+                this.RaisePropertyChanged(nameof(SelectedImageClass));
             }
         }
         int imageNumber = 1;
@@ -60,7 +60,7 @@ namespace VisualNeuralNetwork.MNIST
             {
                 imageNumber = value;
                 UpdateImage();
-                this.RaisePropertyChanged("ImageNumber");
+                this.RaisePropertyChanged(nameof(ImageNumber));
             }
         }
         public bool IncludeImageInTraining { get; set; } = true;
@@ -115,15 +115,15 @@ namespace VisualNeuralNetwork.MNIST
             Network = GetNewNetwork();
             UpdateImage();
             CalculatePerformance();
-            this.RaisePropertyChanged("ImageProcessing");
+            this.RaisePropertyChanged(nameof(ImageProcessing));
         }
 
         void UpdateImage()
         {
             CurrentImage = SelectedImageClass?.GetImage(ImageNumber-1, ImageDimension, imageProcessing);
             CurrentImageClassification = GetClassification(CurrentImage);
-            this.RaisePropertyChanged("CurrentImage");
-            this.RaisePropertyChanged("CurrentImageClassification");
+            this.RaisePropertyChanged(nameof(CurrentImage));
+            this.RaisePropertyChanged(nameof(CurrentImageClassification));
         }
         Classification? GetClassification(ArraySegment<byte>? segment)
         {
@@ -145,9 +145,9 @@ namespace VisualNeuralNetwork.MNIST
             Network = GetNewNetwork();
             PerformancePerc = 0;
             Epochs = 0;
-            this.RaisePropertyChanged("Network");
-            this.RaisePropertyChanged("PerformancePerc");
-            this.RaisePropertyChanged("Epochs");
+            this.RaisePropertyChanged(nameof(Network));
+            this.RaisePropertyChanged(nameof(PerformancePerc));
+            this.RaisePropertyChanged(nameof(Epochs));
             UpdateImage();
             CalculatePerformance();
         }
@@ -169,7 +169,7 @@ namespace VisualNeuralNetwork.MNIST
             Tensor target = tensorData.Target.GetSubTensor(indexes);
             Network.Train(input, target, learningRate);
             Epochs += batchSize / (double)tensorData.NumberOfTrainingSamples;
-            this.RaisePropertyChanged("Epochs");
+            this.RaisePropertyChanged(nameof(Epochs));
             if (calcPerformance)
             {
                 CalculatePerformance();
@@ -262,7 +262,7 @@ namespace VisualNeuralNetwork.MNIST
                         CorrectTotal = success[i]
                     });
                 }
-                this.RaisePropertyChanged("PerformancePerc");
+                this.RaisePropertyChanged(nameof(PerformancePerc));
             });
         }
 

@@ -36,12 +36,12 @@ namespace VisualNeuralNetwork.NeuralNetwork
                 if (_weights.Shape.SequenceEqual(dl._weights.Shape))
                 {
                     _weights = dl.Weights;
-                    this.RaisePropertyChanged("Weights");
+                    this.RaisePropertyChanged(nameof(Weights));
                 }
                 if (_biases.Shape.SequenceEqual(dl._biases.Shape))
                 {
                     _biases = dl.Biases;
-                    this.RaisePropertyChanged("Biases");
+                    this.RaisePropertyChanged(nameof(Biases));
                 }
             }
         }
@@ -125,8 +125,8 @@ namespace VisualNeuralNetwork.NeuralNetwork
             _weights -= learningRate * dLdW;
             _biases -= learningRate * dLdB;
 
-            this.RaisePropertyChanged("Weights");
-            this.RaisePropertyChanged("Biases");
+            this.RaisePropertyChanged(nameof(Weights));
+            this.RaisePropertyChanged(nameof(Biases));
 
             return dLdX;
         }

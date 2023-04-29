@@ -105,9 +105,9 @@ namespace VisualNeuralNetwork.MNIST
             Network1?.Network.SyncWeights(Network2!.Network);
             Network1?.OnWeightsChanged();
             IsLoading = false;
-            this.RaisePropertyChanged("Network1");
-            this.RaisePropertyChanged("Network2");
-            this.RaisePropertyChanged("IsLoading");
+            this.RaisePropertyChanged(nameof(Network1));
+            this.RaisePropertyChanged(nameof(Network2));
+            this.RaisePropertyChanged(nameof(IsLoading));
         }
 
         TensorData CreateInput(List<ImageClass> Classes, ImageProcessing imageProcessing)

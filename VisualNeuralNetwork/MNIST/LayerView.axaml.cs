@@ -23,7 +23,7 @@ namespace VisualNeuralNetwork.MNIST
         public void SetDataContext(object dataContext)
         {
             DataContext = dataContext;
-            this.RaisePropertyChanged("DataContext");
+            this.RaisePropertyChanged(nameof(DataContext));
         }
     }
 
@@ -59,7 +59,6 @@ namespace VisualNeuralNetwork.MNIST
                 }
                 else
                 {
-                    //List<ArraySegment<double>> result = new();
                     int index = 0;
                     for (int i = 0; i < arr.Shape[0]; i++)
                     {

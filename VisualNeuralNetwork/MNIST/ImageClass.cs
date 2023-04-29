@@ -58,7 +58,7 @@ namespace VisualNeuralNetwork.MNIST
         public void SetPerformance(Performance performance)
         {
             Performance = performance;
-            this.RaisePropertyChanged("Performance");
+            this.RaisePropertyChanged(nameof(Performance));
         }
 
         public ArraySegment<byte> GetImage(int index)
