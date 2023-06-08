@@ -20,8 +20,8 @@
 			<StackPanel Orientation="Vertical">
 				<TextBlock Margin="10">Bias</TextBlock>
 				<vnn:XYPlot x:Name="biasPlot" Margin="10,0" MinWidth="200" MaxWidth="300" Height="200" Width="200"
-                                 DataContext="{Binding Biases, Converter={StaticResource datacontextConverter}}" 
-                                 />
+                            DataContext="{Binding Biases, Converter={StaticResource datacontextConverter}}"
+							UseLayoutRounding="True" />
 			</StackPanel>
 			<StackPanel Orientation="Vertical">
 				<TextBlock Margin="10,2" Text="{Binding CurrentDataPoint.Number,ElementName=biasPlot,StringFormat='Neuron {0}'}"/>
@@ -40,10 +40,10 @@
 					<Grid Margin="3">
 						<vnn:GridPlot x:Name="weightGridPlot" Width="112" Height="112" Background="Transparent"
                                 NumColumns="28" GrayScale="True" Channel="Blue" Initialized="gridPlot_Loaded"
-									  DataContext="{Binding DataContext}"
+									  DataContext="{Binding DataContext}" UseLayoutRounding="True" 
                                 />
 						<vnn:XYPlot x:Name="weightXyPlot" MinWidth="100" Height="100" MaxWidth="200" Background="Transparent"
-                                Initialized="weightPlot_Loaded" DataContext="{Binding DataContext}"
+                                Initialized="weightPlot_Loaded" DataContext="{Binding DataContext}" UseLayoutRounding="True"
                                 />
 					</Grid>
 				</DataTemplate>
