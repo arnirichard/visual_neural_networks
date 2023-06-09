@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,10 @@ namespace VisualNeuralNetwork.MNIST
         public void SetPerformance(Performance performance)
         {
             Performance = performance;
-            this.RaisePropertyChanged(nameof(Performance));
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.RaisePropertyChanged(nameof(Performance));
+            });
         }
 
         public ArraySegment<byte> GetImage(int index)

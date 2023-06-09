@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Data.Converters;
+using Avalonia.Threading;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,10 @@ namespace VisualNeuralNetwork.MNIST
         public void SetDataContext(object dataContext)
         {
             DataContext = dataContext;
-            this.RaisePropertyChanged(nameof(DataContext));
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.RaisePropertyChanged(nameof(DataContext));
+            });
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +116,6 @@ namespace VisualNeuralNetwork.MNIST
             Network = GetNewNetwork();
             UpdateImage();
             CalculatePerformance();
-            this.RaisePropertyChanged(nameof(ImageProcessing));
         }
 
         void UpdateImage()
@@ -169,7 +169,10 @@ namespace VisualNeuralNetwork.MNIST
             Tensor target = tensorData.Target.GetSubTensor(indexes);
             Network.Train(input, target, learningRate);
             Epochs += batchSize / (double)tensorData.NumberOfTrainingSamples;
-            this.RaisePropertyChanged(nameof(Epochs));
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.RaisePropertyChanged(nameof(Epochs));
+            });
             if (calcPerformance)
             {
                 CalculatePerformance();
@@ -262,7 +265,10 @@ namespace VisualNeuralNetwork.MNIST
                         CorrectTotal = success[i]
                     });
                 }
-                this.RaisePropertyChanged(nameof(PerformancePerc));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    this.RaisePropertyChanged(nameof(PerformancePerc));
+                });
             });
         }
 

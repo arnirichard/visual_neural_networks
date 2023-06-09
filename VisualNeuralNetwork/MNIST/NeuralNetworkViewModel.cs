@@ -33,7 +33,7 @@ namespace VisualNeuralNetwork.MNIST
         public NetworkNode? Network2 { get; set; }
         public bool IsLoading { get; private set; } = true;
         public int BatchSize { get; set; } = 200;
-        public int NumberOfBatches { get; set; } = 2000;
+        public int NumberOfBatches { get; set; } = 100000;
         bool isTraining;
 
         public NeuralNetworkViewModel()
